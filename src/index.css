@@ -1,0 +1,286 @@
+:root {
+  color-scheme: dark;
+  --color-background: #15171c;
+  --color-surface: #1f232b;
+  --color-border: #343a46;
+  --color-text: #e8eaee;
+  --color-text-muted: #9aa3b2;
+  --color-accent: #4c9aff;
+  --color-error: #ff8a80;
+
+  font-family: system-ui, -apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--color-text);
+  background: var(--color-background);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+button,
+select,
+.file-button {
+  font: inherit;
+  color: inherit;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+button:disabled,
+select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+button.primary {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: #0b1220;
+  font-weight: 600;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app.dragging-over {
+  outline: 3px dashed var(--color-accent);
+  outline-offset: -6px;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 18px;
+}
+
+/* ファイル選択の入力欄は見た目を持たせず、ラベルをボタンとして見せる */
+.file-button input {
+  display: none;
+}
+
+.file-name {
+  color: var(--color-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.empty-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.workspace {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 20px;
+}
+
+.player {
+  flex: 1 1 560px;
+  min-width: 0;
+  /* 映像の下の再生ボタンとシークバーが画面の外へ押し出されないよう、映像の高さが画面に収まる幅を上限にする。
+     200px は、映像以外の部分（ヘッダー、再生の操作欄、フッター、上下の余白）の高さ約 194px に余裕を足した値 */
+  max-width: calc((100vh - 200px) * 16 / 9);
+  /* 上限で幅が狭まったときは、空いた範囲の中央に置く */
+  margin-inline: auto;
+}
+
+.player-stage {
+  position: relative;
+  width: 100%;
+  /* 出力映像と同じ縦横比にして、プレビューの構図がそのまま書き出されるようにする */
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* 元映像は描画の入力としてだけ使う。非表示（display: none）にするとフレームが更新されないブラウザがあるため、見えない大きさで残す */
+.player-source {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.player-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+  /* ドラッグ操作がページのスクロールや選択として扱われないようにする */
+  touch-action: none;
+  user-select: none;
+}
+
+.player-canvas:active {
+  cursor: grabbing;
+}
+
+.player-message {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 20px;
+  text-align: center;
+  color: var(--color-error);
+  background: rgb(0 0 0 / 70%);
+}
+
+.player-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+/* 「再生」と「一時停止」で長いほうが収まる幅に揃える */
+.player-controls button {
+  min-width: 6em;
+}
+
+.player-controls input[type="range"] {
+  flex: 1;
+}
+
+.player-time {
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-muted);
+}
+
+.sidebar {
+  flex: 0 1 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+}
+
+.panel h2 {
+  margin: 0;
+  font-size: 15px;
+}
+
+.panel button,
+.panel select {
+  background: var(--color-background);
+}
+
+.panel button.primary {
+  background: var(--color-accent);
+}
+
+.mount-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.mount-options legend {
+  padding: 0;
+  margin-bottom: 4px;
+  color: var(--color-text-muted);
+}
+
+.angle-slider {
+  display: grid;
+  grid-template-columns: 4em 1fr 3.5em;
+  align-items: center;
+  gap: 8px;
+}
+
+.angle-slider-value {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.field {
+  display: grid;
+  grid-template-columns: 4em 1fr;
+  align-items: center;
+  gap: 8px;
+}
+
+.hint {
+  margin: 0;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.export-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.export-progress progress {
+  width: 100%;
+}
+
+.export-progress p,
+.message {
+  margin: 0;
+  font-size: 13px;
+}
+
+.message.error {
+  color: var(--color-error);
+}
+
+.app-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 12px 20px;
+  border-top: 1px solid var(--color-border);
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.app-footer a {
+  color: inherit;
+}
